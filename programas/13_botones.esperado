@@ -1,0 +1,4 @@
+# Sin botones activados: la pantalla queda en negro
+$s7 = 0
+mem[0x400] = 0
+mem[0x404] = 0

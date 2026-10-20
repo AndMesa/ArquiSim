@@ -1,0 +1,5 @@
+mem[0x400] = 0x0C0C0C0C       # fila 0: marco
+mem[0x420] = 0x0C000900       # fila 1: marco, x = 2 rojo
+mem[0x43C] = 0x0000000C       # fila 1: borde derecho
+mem[0x5DC] = 0x0900000C       # fila 14: x = 28 rojo, borde derecho
+mem[0x5E0] = 0x0C0C0C0C       # fila 15: marco

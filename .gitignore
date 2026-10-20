@@ -1,0 +1,17 @@
+# Ejecutables generados por make
+sim
+sim.exe
+sim_ref
+sim_ref.exe
+
+# Archivos intermedios de compilación
+*.o
+*.obj
+*.dSYM/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+*~

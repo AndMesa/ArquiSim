@@ -1,0 +1,3 @@
+$s0 = 41
+$sp = 0x400                     # la pila quedó como estaba
+mem[0x3FC] = 0x008              # allí se guardó $ra: la instrucción después del jal de main

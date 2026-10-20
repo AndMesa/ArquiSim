@@ -1,0 +1,46 @@
+# =====================================================================
+#  isa.txt -- El ISA de ArquiSim, un MIPS reducido (el CONTRATO entre software y hardware)
+# =====================================================================
+#  Este archivo define QUÉ instrucciones existen y CÓMO se codifican.
+#  El proyecto base solo trae add y addi: usted agrega aquí cada instrucción
+#  nueva (con la codificación dada en clase) y la implementa en src/ejecutar.c.
+#  El simulador lo usa para ensamblar los programas (.asm -> binario) y
+#  para decodificar cada instrucción.  QUÉ HACE cada una se implementa
+#  en src/ejecutar.c.
+#
+#  Columnas:
+#    mnemónico  formato  opcode(6 bits)  funct(6 bits o -)  operandos  [nombre interno]
+#
+#  Formatos (32 bits):
+#    R:  op(6) | rs(5) | rt(5) | rd(5) | shamt(5) | funct(6)
+#    I:  op(6) | rs(5) | rt(5) | inmediato(16)
+#    J:  op(6) | dirección(26)
+#
+#  Operandos (en el orden en que se escriben en ensamblador):
+#    rd, rs, rt  registros            imm     inmediato de 16 bits
+#    shamt       desplazamiento 0-31  label   etiqueta de salto
+#    imm(rs)     base + desplazamiento (acceso a memoria)
+#    rd+rs       un registro escrito que va a DOS campos (forma de 2 direcciones)
+#    rd=$v0      campo implícito: no se escribe, siempre es ese registro
+#
+#  Columna opcional "nombre interno": identifica la instrucción en ejecutar.c.
+#  Si se omite, es igual al mnemónico.
+#
+#  Un mismo mnemónico puede tener varias formas, que el ensamblador distingue
+#  por el número de operandos escritos:
+#    - misma codificación y mismo nombre:  otra sintaxis de la misma instrucción
+#        add  R  000000  100000  rd+rs,rt              # add $t1, $t2
+#    - otra codificación y otro nombre:    otra instrucción con el mismo mnemónico
+#        add  R  000000  110000  rt         adda       # add $t1  (ACC = ACC + $t1)
+#
+#  Pseudoinstrucción: un mnemónico nuevo con la codificación y el nombre de
+#  una instrucción real, con operandos implícitos:
+#        move R  000000  100000  rd,rs,rt=$zero  add    # move $t0, $t1  ->  add $t0, $t1, $zero
+#  (li con un valor de 32 bits se expande sola a lui + ori si existen en el ISA)
+# =====================================================================
+
+# ---------------- Instrucciones del proyecto base ----------------
+add    R  000000  100000  rd,rs,rt     # rd = rs + rt        (excepción si desborda)
+addi   I  001000  -       rt,rs,imm    # rt = rs + imm       (imm con signo; excepción si desborda)
+
+# ---------------- Agregue aquí las demás instrucciones ----------------

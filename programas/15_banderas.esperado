@@ -1,0 +1,8 @@
+$s0 = 5
+$s1 = 1
+$s2 = 1
+acc = 0x80000000
+# la última instrucción (addi $s2, $zero, 1) deja: resultado 1 -> Z = 0, N = 0, V = 0
+z = 0
+n = 0
+v = 0
