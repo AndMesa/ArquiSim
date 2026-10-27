@@ -49,3 +49,8 @@ and     R       000000 100100 rd,rs,rt #rd = rs & rt
 or	R	000000 100101 rd,rs,rt #rd = rs OR rt
 xor	R	000000 100110 rd,rs,rt #rd = rs XOR rt
 nor	R	000000 100111 rd,rs,rt #rd = NOT (rs OR rt)
+sll	R	000000 000000 rd,rt,shamt #rd = rt << shamt
+srl	R	000000 000010 rd,rt,shamt #rd = rt >> shamt (rellena con 0)
+sra	R	000000 000011 rd,rt,shamt #rd = rt >> shamt (conserva el signo)
+addu	R	000000 100001 rd,rs,rt #rd = rs + rt (sin excepcion)
+
