@@ -117,7 +117,7 @@ void mostrar_arquitectura(const Programa *p)
            DATA_BASE + d, RAM_BYTES - 1, "pila", RAM_BYTES - DATA_BASE - d, PILA_INICIAL);
     printf("  0x%03X - 0x%03X   %-6s %5u B   memoria de video: píxel (x, y) en 0x%03X + 32*y + x\n",
            VIDEO_BASE, BOTONES_DIR - 1, "video", VIDEO_BYTES, VIDEO_BASE);
-    printf("  0x%03X - 0x%03X   %-6s %5u B   botones, temporizador, vector, causa, pantalla RGB\n",
+    printf("  0x%03X - 0x%03X   %-6s %5u B   botones (0x600) y pantalla RGB (0x604, 0x608)\n",
            BOTONES_DIR, MEM_BYTES - 1, "E/S", MEM_BYTES - BOTONES_DIR);
     printf("  El programa ocupa %u B de %u B de RAM (%.1f %%)\n",
            t + d, RAM_BYTES, 100.0 * (t + d) / RAM_BYTES);
@@ -265,10 +265,6 @@ static void mostrar_cambios(const CPU *antes, const CPU *despues)
             fputs(*nuevo == '\n' ? "\\n" : (char[2]){ *nuevo, 0 }, stdout);
         printf("\"%s\n", color_reset());
     }
-    if (despues->int_atendida)
-        printf("  %sINTERRUPCIÓN%s (%s%s): EPC = 0x%03X, salto a la ISR en 0x%03X\n", color_cambio(),
-               color_reset(), despues->int_atendida & INT_BOTONES ? "botones " : "",
-               despues->int_atendida & INT_TEMPORIZADOR ? "temporizador" : "", despues->epc, despues->pc);
     if (antes->banderas != despues->banderas) {
         char b[128];
         formatear_banderas(despues, antes, b, sizeof b);
@@ -344,8 +340,8 @@ void mostrar_registros(const CPU *cpu, const CPU *ref)
     formatear_banderas(cpu, ref, b, sizeof b);
     printf("  PC 0x%03X   IR 0x%08X   %sACC 0x%08X%s   FLAGS %s\n", cpu->pc, cpu->ir,
            ref && ref->acc != cpu->acc ? color_cambio() : "", cpu->acc, color_reset(), b);
-    printf("  A 0x%08X   B 0x%08X   TEMP 0x%08X   HI 0x%08X   LO 0x%08X   IE %u   EPC 0x%03X\n",
-           cpu->a, cpu->b, cpu->temp, cpu->hi, cpu->lo, cpu->ie, cpu->epc);
+    printf("  A 0x%08X   B 0x%08X   TEMP 0x%08X   HI 0x%08X   LO 0x%08X\n",
+           cpu->a, cpu->b, cpu->temp, cpu->hi, cpu->lo);
 }
 
 static void encabezado_memoria(void)
@@ -404,7 +400,7 @@ void mostrar_final(const CPU *cpu, const CPU *inicial, const Programa *p, int pa
         char fila[MAX_FILA_PANTALLA * 4];
         int y;
 
-        mostrar_titulo("Pantalla RGB (registros 0x610 POSICION, 0x614 COLOR)");
+        mostrar_titulo("Pantalla RGB (registros 0x604 POSICION, 0x608 COLOR)");
         for (y = 0; y < RGB_ALTO; y += color ? 2 : 1) {
             if (color)
                 formatear_dos_filas_rgb(cpu, y, 2, fila, sizeof fila);
@@ -445,9 +441,9 @@ void formatear_banderas(const CPU *cpu, const CPU *ref, char *buf, size_t tam)
 
 void formatear_estadisticas(const CPU *cpu, char *buf, size_t tam)
 {
-    snprintf(buf, tam, "R %u  I %u  J %u | lect. %u  escr. %u | saltos %u | int. %u",
+    snprintf(buf, tam, "R %u  I %u  J %u | lect. %u  escr. %u | saltos %u",
              cpu->est.instr[FMT_R], cpu->est.instr[FMT_I], cpu->est.instr[FMT_J],
-             cpu->est.lecturas, cpu->est.escrituras, cpu->est.saltos, cpu->est.interrupciones);
+             cpu->est.lecturas, cpu->est.escrituras, cpu->est.saltos);
 }
 
 static void mostrar_estadisticas(const CPU *cpu)
@@ -462,7 +458,6 @@ static void mostrar_estadisticas(const CPU *cpu)
            e->instr[2], 100.0 * e->instr[2] / t);
     printf("  Accesos a datos            %u lecturas, %u escrituras\n", e->lecturas, e->escrituras);
     printf("  Saltos tomados             %u\n", e->saltos);
-    printf("  Interrupciones atendidas   %u\n", e->interrupciones);
 }
 
 int rgb_usada(const CPU *cpu)

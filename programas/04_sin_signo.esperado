@@ -1,0 +1,8 @@
+$t1 = 0x80000000
+$t2 = 0xFFFFFFFE
+$t3 = 0x80000001
+$t4 = 0xFFFFFFFC
+$sp = 0x3FC
+# la última suma (0x400 + 0xFFFFFFFC) da la vuelta sin signo: C = 1, pero no hay desbordamiento con signo
+c = 1
+v = 0

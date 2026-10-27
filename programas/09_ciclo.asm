@@ -1,4 +1,4 @@
-# Programa 05 -- Ciclo que recorre un arreglo
+# Programa 09 -- Ciclo que recorre un arreglo
 #   suma = 0;
 #   for (i = 3; i >= 0; i--) suma = suma + A[i];
 # Base de A -> $s0, suma -> $s1, puntero -> $t0

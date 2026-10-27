@@ -1,4 +1,4 @@
-# Programa 04 -- if-else con lógica negativa
+# Programa 08 -- if-else con lógica negativa
 #   if (i == j) f = g + h;  else f = g - h;
 # f -> $s0, g -> $s1, h -> $s2, i -> $s3, j -> $s4
 # Necesita: bne, j, sub

@@ -1,4 +1,4 @@
-# Programa 16 -- El segmento .data: variables y arreglos en memoria
+# Programa 11 -- El segmento .data: variables y arreglos en memoria
 #
 #   int notas[6] = {35, 42, 28, 50, 45, 39};   // notas x 10
 #   int n = 6;

@@ -124,7 +124,7 @@ static char *recortar(char *s)
     return s;
 }
 
-/* Elimina los espacios: permite escribir "mem [ 0x610 ]" o "rgb[3, 2]". */
+/* Elimina los espacios: permite escribir "mem [ 0x604 ]" o "rgb[3, 2]". */
 static void quitar_espacios(char *t)
 {
     char *d = t;
@@ -174,7 +174,7 @@ static int verificar(const char *ruta_asm, const CPU *cpu, int limite)
         }
         *igual = '\0';
         lhs = recortar(s);
-        quitar_espacios(lhs);                /* "mem [ 0x610 ]" = "mem[0x610]" */
+        quitar_espacios(lhs);                /* "mem [ 0x604 ]" = "mem[0x604]" */
         rhs = recortar(igual + 1);
 
         if (strcmp(lhs, "excepcion") == 0) {
@@ -205,10 +205,6 @@ static int verificar(const char *ruta_asm, const CPU *cpu, int limite)
             obtenido = cpu->hi;
         } else if (strcmp(lhs, "lo") == 0) {
             obtenido = cpu->lo;
-        } else if (strcmp(lhs, "ie") == 0) {
-            obtenido = cpu->ie;
-        } else if (strcmp(lhs, "epc") == 0) {
-            obtenido = cpu->epc;
         } else if (strlen(lhs) == 1 && strchr("zncv", lhs[0])) {
             uint32_t bit = lhs[0] == 'z' ? BANDERA_Z : lhs[0] == 'n' ? BANDERA_N :
                            lhs[0] == 'c' ? BANDERA_C : BANDERA_V;

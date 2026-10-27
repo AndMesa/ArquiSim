@@ -20,7 +20,7 @@ La pantalla se redibuja en cada instrucción (la terminal debe medir al menos 10
 
 ```
 ┌─┤ ArquiSim ├──────────────────────────────────────────────────────────────────────────────────┐
-│ programa: 05_ciclo.asm   paso: 6   PC = 0x018   R 2  I 4  J 0 | lecturas 1  escrituras 0     │
+│ programa: 09_ciclo.asm   paso: 6   PC = 0x018   R 2  I 4  J 0 | lecturas 1  escrituras 0     │
 ├─┤ PROGRAMA (.text: 9 instrucciones, 36 B) ├──────────┬─┤ BANCO DE REGISTROS (32 x 32 bits) ├─┤
 │       0x014  8D0A0000        lw   $t2, 0($t0)        │  $t0   0000020C    $s0   00000200     │
 │ PC>   0x018  022A8820        add  $s1, $s1, $t2      │ *$t2   00000004    $s1   00000000     │
@@ -96,7 +96,7 @@ memoria, `#` es código, `=` datos y `s` pila.
 | `src/main.c` | Opciones y modos de ejecución. | 
 | `src/ciclo.c` | Ciclo Fetch → Decode → Execute. | 
 | `src/isa.c` | Lectura de `isa.txt` y decodificación (la unidad de control). | 
-| `src/ensamblador.c` | Traduce `.asm` a binario y lo carga en la RAM. | No |
+| `src/ensamblador.c` | Traduce `.asm` a binario y lo carga en la RAM. |
 | `src/cpu.c`, `src/cpu.h` | Estado de la máquina y herramientas de acceso a memoria. | 
 | `src/tui.c`, `src/terminal.c` | Interfaz de pantalla completa. | 
 | `src/mostrar.c` | Salida de texto (modo `--traza` y estado final). |
@@ -119,28 +119,32 @@ en las **dos capas**:
 
 Orden sugerido:
 
-| Programa | Instrucciones | Concepto |
-|---|---|---|
-| `01_aritmetica` | `sub`, `addu`, `addiu`, `subu` | ALU y desbordamiento |
-| `02_logica` | `and`, `or`, `xor`, `nor`, `andi`, `ori`, `xori`, `lui`, `sll`, `srl`, `sra` | Máscaras; extensión de ceros vs. de signo |
-| `03_memoria` | `lw`, `sw` | Base + desplazamiento, alineación |
-| `04_if` | `bne`, `beq`, `j` | Saltos relativos al PC y pseudodirectos |
-| `05_ciclo` | `slt`, `sltu`, `slti` | Comparaciones |
-| `06_funcion` | `jal`, `jr` | Llamadas a función y `$ra` |
-| `07_texto` | `lb`, `lbu`, `sb` | Acceso a bytes |
-| `08_excepcion` | — | `add`/`addi` deben detectar el desbordamiento |
-| `09_pantalla` | (las anteriores) | E/S mapeada en memoria y arreglos 2D |
-| `10_direcciones` | — (funciona con el proyecto base) | Instrucciones de 3, 2 y 1 dirección |
-| `11_acumulador` | `mtacc`, `mfacc`, `suba`, `addia` | Máquina de acumulador |
-| `12_pseudo` | `move`, `li`, `la`, `nop`, `clear`, `b` (solo en `isa.txt`) | Pseudoinstrucciones |
-| `13_botones` | (las anteriores) | Entrada mapeada en memoria y sondeo |
-| `14_pila` | (las anteriores) | Guardar `$ra` en la pila al llamar funciones |
-| `15_banderas` | `cmp`, `jz`, `jn`, `jc`, `jv` | Registro de banderas (como en el PDUA) |
-| `16_datos` | (las anteriores) | Variables y arreglos en `.data`: traer con `lw`, guardar con `sw` |
-| `17_interrupciones` | `ei`, `di`, `eret`, `mfepc` | Interrupciones de botones y temporizador |
-| `18_pantalla_rgb` | (las anteriores) | Dispositivo con registros de comando (pantalla RGB) |
-| `19_mult_div` | `mult`, `multu`, `div`, `divu`, `mfhi`, `mflo`, `mul` | Registros HI/LO; saltos `blt`/`ble` con `$at` |
-| `20_consola` | `syscall` | Consola: imprimir y leer (servicios del sistema) |
+| Etapa | Programa | Instrucciones | Concepto |
+|---|---|---|---|
+| 0 | `00_suma` | — (proyecto base) | Probar el simulador |
+| 1 | `01_aritmetica` | `sub` | ALU y banderas |
+| 1 | `02_logica` | `lui`, `ori`, `and`, `andi`, `nor`, `sll`, `srl`, `sra` | Máscaras; extensión de ceros vs. de signo |
+| 1 | `03_xor` | `or`, `xor`, `xori` | Más operaciones lógicas |
+| 1 | `04_sin_signo` | `addu`, `subu`, `addiu` | Aritmética sin excepción (acarreo C) |
+| 1 | `05_excepcion` | — | `add`/`addi` deben detectar el desbordamiento |
+| 2 | `06_memoria` | `lw`, `sw` | Base + desplazamiento, alineación |
+| 2 | `07_bytes` | `lb`, `lbu`, `sb` | Acceso a bytes; big-endian |
+| 3 | `08_if` | `bne`, `j` | Saltos relativos al PC y pseudodirectos |
+| 3 | `09_ciclo` | `slt` | Ciclos y comparaciones |
+| 3 | `10_comparaciones` | `sltu`, `slti`, `beq` | Comparar con y sin signo |
+| 3 | `11_datos` | (las anteriores) | Variables y arreglos en `.data` |
+| 3 | `12_texto` | (las anteriores) | Cadenas de caracteres |
+| 3 | `13_funcion` | `jal`, `jr` | Llamadas a función y `$ra` |
+| 3 | `14_pila` | (las anteriores) | Guardar `$ra` en la pila |
+| 3 | `15_pseudo` | `move`, `li`, `la`, `nop`, `clear`, `b`, `not` (solo en `isa.txt`) | Pseudoinstrucciones |
+| 4 | `16_pantalla` | (las anteriores) | E/S mapeada en memoria y arreglos 2D |
+| 4 | `17_botones` | (las anteriores) | Entrada mapeada en memoria y sondeo |
+| 4 | `18_pantalla_rgb` | (las anteriores) | Dispositivo con registros de comando |
+| 5 | `19_direcciones` | formas `rd+rs` y `adda` | Instrucciones de 3, 2 y 1 dirección |
+| 5 | `20_acumulador` | `mtacc`, `mfacc`, `suba`, `addia` | Máquina de acumulador |
+| 5 | `21_banderas` | `cmp`, `jz`, `jn`, `jc`, `jv` | Registro de banderas (como en el PDUA) |
+| 5 | `22_mult_div` | `mult`, `multu`, `div`, `divu`, `mfhi`, `mflo`, `mul` | Registros HI/LO; `blt`/`ble` con `$at` |
+| 5 | `23_consola` | `syscall` | Consola: imprimir y leer |
 
 Después de cada grupo ejecute `make test`. Cada programa que falla le dice qué valor
 esperaba y cuál obtuvo.
@@ -167,19 +171,16 @@ Mapa de memoria:
   ...  - 0x3FF  pila    $sp inicia en 0x400 y crece hacia abajo
 0x400 - 0x5FF   video   pantalla de 32 x 16 píxeles
 0x600           botones       8 botones (bits 7..0), solo lectura
-0x604           temporizador  interrumpir cada N instrucciones (0 = apagado)
-0x608           vector        dirección de la rutina de servicio (ISR)
-0x60C           causa         bit 0 = botones, bit 1 = temporizador (solo lectura)
-0x610           rgb posición  pantalla RGB: (y << 16) | x
-0x614           rgb color     pantalla RGB: escribir 0x00RRGGBB dibuja y avanza
+0x604           rgb posición  pantalla RGB: (y << 16) | x
+0x608           rgb color     pantalla RGB: escribir 0x00RRGGBB dibuja y avanza
 ```
 
 ### Pantalla RGB (registros de comando)
 
 Es otra forma de conectar una pantalla. La imagen (32 × 32, 24 bits por píxel) vive
 **dentro del dispositivo**, no en la memoria del procesador: el programa solo usa dos
-registros. Primero escribe la posición en 0x610 (`(y << 16) | x`) y luego el color en
-0x614 (`0x00RRGGBB`); la escritura del color dibuja el píxel y **avanza x** sola
+registros. Primero escribe la posición en 0x604 (`(y << 16) | x`) y luego el color en
+0x608 (`0x00RRGGBB`); la escritura del color dibuja el píxel y **avanza x** sola
 (autoincremento), así que para llenar una fila basta enviar colores seguidos.
 
 | | Pantalla 0x400 (*framebuffer*) | Pantalla RGB (comandos) |
@@ -200,27 +201,9 @@ Los 8 botones son un dispositivo de **entrada**: el programa los lee con
 cambiarlos. En la interfaz se activan y desactivan con `bt n` (`bt` solo los apaga).
 
 Como el programa no se entera cuando alguien presiona un botón, tiene que leerlos una
-y otra vez en un ciclo: eso se llama **sondeo** (*polling*). Vea `programas/13_botones.asm`:
+y otra vez en un ciclo: eso se llama **sondeo** (*polling*). Vea `programas/17_botones.asm`:
 ponga `bp LEER`, active botones con `bt 3` y continúe con `c`. O más directo: ejecútelo en
 **tiempo real** con `a 10` y presione las teclas `0`–`7` mientras corre.
-
-### Interrupciones
-
-Dos dispositivos pueden pedir una interrupción: los **botones** (cuando uno pasa de 0 a 1)
-y el **temporizador** (cada N instrucciones, con N escrito en 0x604). Al final de cada
-instrucción, si las interrupciones están habilitadas (IE = 1) y hay una pendiente, el
-hardware hace:
-
-1. `EPC = PC` (a dónde volver)
-2. `IE = 0` (no anidar interrupciones)
-3. `CAUSA` (0x60C) = qué dispositivo la pidió
-4. `PC = VECTOR` (0x608): salta a la rutina de servicio (ISR)
-
-La ISR atiende el dispositivo y termina con `eret` (`PC = EPC`, `IE = 1`). Instrucciones:
-`ei` (habilitar), `di` (deshabilitar), `eret` y `mfepc rd` (leer EPC). El panel
-**E/S: BOTONES E INTERRUPCIONES** muestra IE, las pendientes (`B` botones, `T` temporizador),
-EPC y la cuenta del temporizador. Vea `programas/17_interrupciones.asm` y ejecútelo en
-tiempo real (`a 20`) presionando las teclas `0`–`7`: compárelo con el sondeo de `13_botones`.
 
 ### Consola (syscall)
 
@@ -241,8 +224,8 @@ entradas se leen del archivo `programa.entrada` (un número por línea).
 
 ### Banderas
 
-Como en el PDUA, las instrucciones del acumulador (`add`, `sub` y `addi` de 1 dirección) y
-`cmp rs, rt` (que calcula rs − rt sin guardarlo) actualizan el registro de banderas:
+Las instrucciones aritméticas y lógicas, las del acumulador (`add`, `sub` y `addi` de 1
+dirección) y `cmp rs, rt` (que calcula rs − rt sin guardarlo) actualizan el registro de banderas:
 
 | Bandera | Se enciende si… |
 |---|---|

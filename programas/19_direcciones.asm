@@ -1,7 +1,7 @@
-# Programa 10 -- Instrucciones de 3, 2 y 1 dirección
+# Programa 19 -- Instrucciones de 3, 2 y 1 dirección
 # Calcula 5 + 7 + 9 de tres maneras. Mire en el IR que el binario
 # siempre tiene los tres campos rd, rs y rt: solo cambia la sintaxis.
-# Necesita: add, addi y add de 1 dirección (adda): funciona con el proyecto base
+# Necesita: formas de 2 direcciones (add rd+rs,rt y addi rt+rs,imm en isa.txt) y add de 1 dirección (adda, usa ACC)
 
 .text
         addi $t1, $zero, 5

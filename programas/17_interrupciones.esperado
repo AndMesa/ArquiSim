@@ -1,5 +1,0 @@
-# El programa nunca termina: se ejecuta hasta el límite de 10000 instrucciones.
-limite = si
-$s1 = 249                       # interrupciones del temporizador (cada 40 instrucciones)
-$s2 = 0                         # sin botones activados no hay interrupciones de botones
-ie = 1

@@ -1,4 +1,4 @@
-# Programa 03 -- Load/Store:  A[12] = h + A[2]
+# Programa 06 -- Load/Store:  A[12] = h + A[2]
 # Base de A -> $s3, h -> $s2
 # Necesita: lw, sw
 #

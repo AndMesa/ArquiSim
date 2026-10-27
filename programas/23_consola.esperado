@@ -1,0 +1,3 @@
+# Las entradas de syscall 5 se leen de 23_consola.entrada (3, 4, 0)
+$s0 = 25
+$s7 = 0

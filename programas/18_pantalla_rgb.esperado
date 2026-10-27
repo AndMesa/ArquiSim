@@ -2,4 +2,4 @@ rgb[0,0] = 0x000080
 rgb[1,0] = 0x080080             # rojo = 8
 rgb[0,1] = 0x000880             # verde = 8
 rgb[31,31] = 0xF8F880           # rojo = 248, verde = 248
-mem[0x610] = 0                  # tras 1024 píxeles la posición dio la vuelta a (0, 0)
+mem[0x604] = 0                  # tras 1024 píxeles la posición dio la vuelta a (0, 0)

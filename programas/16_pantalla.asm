@@ -1,4 +1,4 @@
-# Programa 09 -- Pantalla mapeada en memoria (E/S)
+# Programa 16 -- Pantalla mapeada en memoria (E/S)
 #
 # La pantalla de 32 x 16 píxeles ocupa 512 bytes a partir de 0x400: un byte por píxel.
 #     dirección del píxel (x, y) = 0x400 + 32*y + x

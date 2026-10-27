@@ -1,4 +1,4 @@
-# Programa 20 -- Consola: servicios del sistema (syscall)
+# Programa 23 -- Consola: servicios del sistema (syscall)
 #
 # El número de servicio va en $v0 y el argumento en $a0:
 #   1 imprimir entero   4 imprimir cadena   5 leer entero (-> $v0)

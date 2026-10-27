@@ -1,4 +1,4 @@
-# Programa 06 -- Llamada a función
+# Programa 13 -- Llamada a función
 #   int sumar3(int x) { return x + 3; }
 #   s0 = sumar3(10);
 # Argumento en $a0, retorno en $v0, dirección de retorno en $ra

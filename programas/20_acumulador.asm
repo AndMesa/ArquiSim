@@ -1,4 +1,4 @@
-# Programa 11 -- Máquina de acumulador:  f = (g + h) - (i + j)
+# Programa 20 -- Máquina de acumulador:  f = (g + h) - (i + j)
 # Igual que el programa 01, pero cada operación tiene UNA sola dirección:
 # el otro operando y el resultado están siempre en el acumulador ACC.
 # f -> $s0, g -> $s1, h -> $s2, i -> $s3, j -> $s4

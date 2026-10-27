@@ -1,4 +1,4 @@
-# Programa 07 -- Texto: convertir "hola" a mayúsculas
+# Programa 12 -- Texto: convertir "hola" a mayúsculas
 # Cada letra ocupa 1 byte; en minúscula el bit 5 está en 1 ('a' = 0x61, 'A' = 0x41).
 # Necesita: lbu, andi, sb, beq
 

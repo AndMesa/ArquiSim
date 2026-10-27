@@ -1,4 +1,4 @@
-# Programa 15 -- Registro de banderas Z N C V y saltos según banderas (como en el PDUA)
+# Programa 21 -- Registro de banderas Z N C V y saltos según banderas (como en el PDUA)
 #
 # Las instrucciones aritméticas y lógicas, las del acumulador y cmp actualizan las banderas
 # (ojo: una addi entre la comparación y el salto las cambiaría):

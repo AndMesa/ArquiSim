@@ -24,27 +24,16 @@
 
 /* Registros de E/S (una palabra cada uno):
  *   0x600 BOTONES       bits 7..0 = botones (1 = activado)            solo lectura
- *   0x604 TEMPORIZADOR  interrumpir cada N instrucciones (0 = apagado)
- *   0x608 VECTOR        dirección de la rutina de servicio (ISR)
- *   0x60C CAUSA         qué pidió la última interrupción              solo lectura
- *   0x610 RGB_POSICION  pantalla RGB: (y << 16) | x
- *   0x614 RGB_COLOR     pantalla RGB: escribir 0x00RRGGBB dibuja el píxel en la posición
+ *   0x604 RGB_POSICION  pantalla RGB: (y << 16) | x
+ *   0x608 RGB_COLOR     pantalla RGB: escribir 0x00RRGGBB dibuja el píxel en la posición
  *                       y avanza x (autoincremento). La imagen vive DENTRO del dispositivo. */
 #define BOTONES_DIR    (VIDEO_BASE + VIDEO_BYTES)   /* 0x600 */
-#define TEMPORIZADOR_DIR (BOTONES_DIR + 4)          /* 0x604 */
-#define VECTOR_DIR     (BOTONES_DIR + 8)            /* 0x608 */
-#define CAUSA_DIR      (BOTONES_DIR + 12)           /* 0x60C */
-
-#define RGB_POS_DIR    (BOTONES_DIR + 16)           /* 0x610 */
-#define RGB_COLOR_DIR  (BOTONES_DIR + 20)           /* 0x614 */
+#define RGB_POS_DIR    (BOTONES_DIR + 4)            /* 0x604 */
+#define RGB_COLOR_DIR  (BOTONES_DIR + 8)            /* 0x608 */
 #define RGB_ANCHO      32
 #define RGB_ALTO       32
 
-#define MEM_BYTES      (BOTONES_DIR + 24)           /* espacio de direcciones total */
-
-/* Fuentes de interrupción (bits de CAUSA y de las pendientes) */
-#define INT_BOTONES      0x1u   /* un botón pasó de 0 a 1           */
-#define INT_TEMPORIZADOR 0x2u   /* se cumplió el periodo del timer  */
+#define MEM_BYTES      (BOTONES_DIR + 12)           /* espacio de direcciones total */
 
 #define REG_SP 29
 #define REG_RA 31
@@ -92,7 +81,6 @@ typedef struct {
     uint32_t lecturas;        /* lecturas de datos en memoria (sin contar el fetch) */
     uint32_t escrituras;      /* escrituras en memoria (RAM y video)           */
     uint32_t saltos;          /* saltos tomados (el PC no avanzó +4)           */
-    uint32_t interrupciones;  /* interrupciones atendidas                      */
 } Estadisticas;
 
 /* ---------------- Estado del procesador ---------------- */
@@ -105,11 +93,6 @@ typedef struct {
     uint32_t hi, lo;               /* resultado de mult/div (fuera del banco)    */
     uint32_t acc;                  /* acumulador (fuera del banco de registros) */
     uint32_t banderas;             /* registro de banderas: Z N C V             */
-    uint32_t ie;                   /* interrupciones habilitadas (1) o no (0)   */
-    uint32_t epc;                  /* PC al que se vuelve con eret               */
-    uint32_t pendientes;           /* interrupciones pedidas y no atendidas      */
-    uint32_t cuenta_temporizador;  /* instrucciones desde la última del timer    */
-    uint32_t int_atendida;         /* causa atendida en este paso (0 = ninguna)  */
     uint8_t  ram[MEM_BYTES];       /* RAM 0x000-0x3FF, video 0x400-0x5FF, botones 0x600 */
     uint32_t rgb[RGB_ALTO][RGB_ANCHO];  /* memoria interna de la pantalla RGB  */
     char     excepcion[160];       /* mensaje de excepción ("" = ninguna)   */
@@ -143,7 +126,7 @@ void      poner_palabra(CPU *cpu, uint32_t dir, uint32_t valor);
 /* Pantalla RGB: dibuja 'color' en la posición actual y avanza la posición. */
 void      rgb_escribir_color(CPU *cpu, uint32_t color);
 
-/* Cambia el estado de los botones; si alguno pasa de 0 a 1 pide una interrupción. */
+/* Cambia el estado de los botones (los 8 bits bajos de la palabra 0x600). */
 void      cambiar_botones(CPU *cpu, uint32_t botones);
 
 /* Lee una palabra sin verificar nada (para mostrar la memoria). dir debe ser válida. */

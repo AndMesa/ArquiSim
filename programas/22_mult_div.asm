@@ -1,4 +1,4 @@
-# Programa 19 -- Multiplicación, división (registros HI y LO) y saltos de comparación
+# Programa 22 -- Multiplicación, división (registros HI y LO) y saltos de comparación
 #
 # mult/div dejan su resultado en HI y LO (fuera del banco de registros):
 #   mult: HI:LO = producto de 64 bits     div: LO = cociente, HI = residuo

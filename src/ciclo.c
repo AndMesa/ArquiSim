@@ -59,32 +59,6 @@ static void guardar_resultado(CPU *cpu, const Instruccion *in, uint32_t acc_ante
         cpu->temp = cpu->reg[in->rt];
 }
 
-/* Al final de cada instrucción: el temporizador cuenta y, si hay una interrupción
- * pendiente y están habilitadas, el hardware salta a la ISR (como en la
- * diapositiva "Anatomía de una interrupción"). */
-static void revisar_interrupciones(CPU *cpu)
-{
-    uint32_t periodo = palabra_en(cpu, TEMPORIZADOR_DIR);
-
-    cpu->int_atendida = 0;
-    if (periodo == 0) {
-        cpu->cuenta_temporizador = 0;
-    } else if (++cpu->cuenta_temporizador >= periodo) {
-        cpu->cuenta_temporizador = 0;
-        cpu->pendientes |= INT_TEMPORIZADOR;
-    }
-
-    if (!cpu->ie || !cpu->pendientes)
-        return;
-    cpu->epc = cpu->pc;                                 /* 1. guardar a dónde volver   */
-    cpu->ie = 0;                                        /* 2. no anidar interrupciones  */
-    poner_palabra(cpu, CAUSA_DIR, cpu->pendientes);     /* 3. registrar la causa        */
-    cpu->int_atendida = cpu->pendientes;
-    cpu->pendientes = 0;
-    cpu->pc = palabra_en(cpu, VECTOR_DIR);              /* 4. saltar a la ISR           */
-    cpu->est.interrupciones++;
-}
-
 EstadoPaso ejecutar_paso(const ISA *isa, const Programa *p, CPU *cpu, Instruccion *in)
 {
     uint32_t pc = cpu->pc, acc_antes = cpu->acc;
@@ -124,10 +98,5 @@ EstadoPaso ejecutar_paso(const ISA *isa, const Programa *p, CPU *cpu, Instruccio
         if (cpu->pc != pc + 4)
             cpu->est.saltos++;
     }
-    if (cpu->excepcion[0])
-        return PASO_EXCEPCION;
-
-    revisar_interrupciones(cpu);
-
     return cpu->excepcion[0] ? PASO_EXCEPCION : PASO_OK;
 }

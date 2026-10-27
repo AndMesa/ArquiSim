@@ -1,4 +1,4 @@
-# Programa 08 -- Excepción por desbordamiento
+# Programa 05 -- Excepción por desbordamiento
 # 0x7FFFFFFF es el mayor entero de 32 bits con signo: sumarle 1 desborda.
 # addi debe detectar el desbordamiento y detener el procesador.
 # Necesita: lui, ori

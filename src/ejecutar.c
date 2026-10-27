@@ -67,30 +67,33 @@ Resultado ejecutar(CPU *cpu, const Instruccion *in)
      *   1. agregue su línea en isa.txt (formato, opcode, funct, operandos)
      *   2. implemente aquí lo que hace
      *
-     * Orden sugerido (cada paso tiene un programa de prueba en programas/):
-     *   01_aritmetica   sub, addu, addiu, subu
-     *   02_logica       and, or, xor, nor, andi, ori, xori, lui, sll, srl, sra
-     *   03_memoria      lw, sw
-     *   04_if           bne, beq, j
-     *   05_ciclo        slt, sltu, slti
-     *   06_funcion      jal, jr
-     *   07_texto        lb, lbu, sb
-     *   08_excepcion    (verifica que add/addi detecten el desbordamiento)
-     *   09_pantalla     (dibuja en la pantalla mapeada en memoria: 0x400 + 32*y + x)
-     *   10_direcciones  formas de 2 direcciones y add de 1 dirección (adda)
-     *   11_acumulador   mtacc, mfacc, suba, addia  (instrucciones con el acumulador ACC)
-     *   12_pseudo       move, li, la, nop, clear, b (solo líneas en isa.txt: no se implementan aquí)
-     *   13_botones      (lee los botones en 0x600 por sondeo y los copia a la pantalla)
-     *   14_pila         (push/pop de $ra con sw/lw y $sp)
-     *   15_banderas     cmp, jz, jn, jc, jv; add/sub/addi de 1 dirección actualizan Z N C V
-     *                   (use sumar_con_banderas / restar_con_banderas de cpu.h)
-     *   16_datos        (variables y arreglos en .data: máximo y suma de un arreglo)
-     *   17_interrupciones  ei, di, eret, mfepc  (cpu->ie, cpu->epc; el salto a la ISR
-     *                   lo hace el hardware en ciclo.c)
-     *   18_pantalla_rgb (pantalla con registros de comando en 0x610 y 0x614)
-     *   19_mult_div     mult, multu, div, divu, mfhi, mflo, mul (cpu->hi, cpu->lo)
-     *                   + blt/bgt/ble/bge (las expande el ensamblador: no se implementan aquí)
-     *   20_consola      syscall: llame a llamar_sistema(cpu) (ver sistema.h)
+     * Orden sugerido (cada etapa tiene programas de prueba en programas/):
+     *
+     *   Etapa 1 - Aritméticas y lógicas
+     *     01_aritmetica   sub
+     *     02_logica       lui, ori, and, andi, nor, sll, srl, sra
+     *     03_xor          or, xor, xori
+     *     04_sin_signo    addu, subu, addiu
+     *     05_excepcion    (add/addi deben detectar el desbordamiento)
+     *   Etapa 2 - Memoria
+     *     06_memoria      lw, sw
+     *     07_bytes        lb, lbu, sb
+     *   Etapa 3 - Control de flujo
+     *     08_if           bne, j
+     *     09_ciclo        slt
+     *     10_comparaciones sltu, slti, beq
+     *     11_datos, 12_texto            (integran memoria y ciclos)
+     *     13_funcion      jal, jr
+     *     14_pila         (push/pop de $ra con sw/lw y $sp)
+     *     15_pseudo       move, li, la, nop, clear, b, not: solo líneas en isa.txt
+     *   Etapa 4 - E/S mapeada en memoria (sin instrucciones nuevas)
+     *     16_pantalla, 17_botones, 18_pantalla_rgb
+     *   Etapa 5 - Extensiones del ISA
+     *     19_direcciones  formas de 2 direcciones y add de 1 dirección (adda)
+     *     20_acumulador   mtacc, mfacc, suba, addia
+     *     21_banderas     cmp, jz, jn, jc, jv
+     *     22_mult_div     mult, multu, div, divu, mfhi, mflo, mul (+ blt, ble: solo isa.txt)
+     *     23_consola      syscall: llame a llamar_sistema(cpu) (ver sistema.h)
      *
      * Pruebe con:  make test
      */

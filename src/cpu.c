@@ -30,10 +30,10 @@ static Resultado validar(CPU *cpu, uint32_t dir, uint32_t tam)
     return OK;
 }
 
-/* BOTONES y CAUSA los escribe el hardware: las escrituras del programa no los cambian. */
+/* Los BOTONES son de entrada: las escrituras del programa no los cambian. */
 static void escribir_ram(CPU *cpu, uint32_t dir, uint8_t valor)
 {
-    if ((dir >= BOTONES_DIR && dir < BOTONES_DIR + 4) || (dir >= CAUSA_DIR && dir < CAUSA_DIR + 4))
+    if (dir >= BOTONES_DIR && dir < BOTONES_DIR + 4)
         return;
     cpu->ram[dir] = valor;
 }
@@ -55,12 +55,7 @@ void rgb_escribir_color(CPU *cpu, uint32_t color)
 
 void cambiar_botones(CPU *cpu, uint32_t botones)
 {
-    uint32_t antes = palabra_en(cpu, BOTONES_DIR);
-
-    botones &= 0xFF;
-    if (botones & ~antes)               /* flanco de subida: algún botón se activó */
-        cpu->pendientes |= INT_BOTONES;
-    poner_palabra(cpu, BOTONES_DIR, botones);
+    poner_palabra(cpu, BOTONES_DIR, botones & 0xFF);
 }
 
 void poner_palabra(CPU *cpu, uint32_t dir, uint32_t valor)

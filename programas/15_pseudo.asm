@@ -1,4 +1,4 @@
-# Programa 12 -- Pseudoinstrucciones
+# Programa 15 -- Pseudoinstrucciones
 # El ensamblador las traduce a instrucciones reales: compare la columna de
 # código máquina con lo que se escribió. li con 32 bits ocupa DOS instrucciones.
 # Necesita: add, addi, sll, beq, lui, ori + las pseudoinstrucciones en isa.txt

@@ -1,4 +1,4 @@
-# Programa 13 -- Botones: entrada mapeada en memoria y sondeo (polling)
+# Programa 17 -- Botones: entrada mapeada en memoria y sondeo (polling)
 #
 # Los 8 botones son los bits 7..0 de la palabra en 0x600 (1 = activado).
 # El programa los LEE una y otra vez (sondeo) y copia su estado a los

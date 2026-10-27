@@ -30,7 +30,7 @@
 #define ALTO_MAX      80
 #define FILAS_FIJAS   10        /* bordes, encabezado, estado, separador, 3 de comandos, prompt */
 #define FIJAS_IZQ     16        /* separadores + IR + cambios + mapa     */
-#define FIJAS_DER     27        /* 4 separadores + 16 registros + 4 internos + 3 de E/S */
+#define FIJAS_DER     26        /* 4 separadores + 16 registros + 4 internos + 2 de botones */
 #define MAX_LINEA     2048
 #define MAX_FILAS     (ALTO_MAX + 4)
 #define ANIMACION_MS  400
@@ -378,10 +378,6 @@ static void panel_cambios(Panel *P, const CPU *antes, const CPU *cpu, int filas)
             snprintf(cambios[n++], sizeof cambios[0], "%-9s 0x%08X -> %s0x%08X%s  (%d)",
                      NOMBRES_REG[r], antes->reg[r], color_cambio(), cpu->reg[r], color_reset(),
                      (int32_t)cpu->reg[r]);
-    if (cpu->int_atendida)
-        snprintf(cambios[n++], sizeof cambios[0], "%sINTERRUPCIÓN%s (%s%s): EPC = 0x%03X, salto a la ISR",
-                 color_cambio(), color_reset(), cpu->int_atendida & INT_BOTONES ? "botones " : "",
-                 cpu->int_atendida & INT_TEMPORIZADOR ? "temporizador" : "", cpu->epc);
     if (antes->banderas != cpu->banderas) {
         char b[96];
         formatear_banderas(cpu, antes, b, sizeof b);
@@ -503,7 +499,7 @@ static void panel_botones(Panel *P, const Sesion *s, const CPU *cpu, const CPU *
     size_t k = 0;
     int i, on;
 
-    SEPARADOR(P, "E/S: BOTONES E INTERRUPCIONES");
+    SEPARADOR(P, "BOTONES (0x600)  [bt n]");
     if (s->aire)
         LINEA(P, "");
     LINEA(P, "%s  7   6   5   4   3   2   1   0%s", color_tenue(), color_reset());
@@ -515,19 +511,6 @@ static void panel_botones(Panel *P, const Sesion *s, const CPU *cpu, const CPU *
     }
     snprintf(estados + k, sizeof estados - k, "  = 0x%02X", v);
     LINEA(P, "%s", estados);
-    {
-        uint32_t periodo = palabra_en(cpu, TEMPORIZADOR_DIR);
-        char tim[32];
-
-        if (periodo)
-            snprintf(tim, sizeof tim, "T %u/%u", cpu->cuenta_temporizador, periodo);
-        else
-            snprintf(tim, sizeof tim, "T apagado");
-        LINEA(P, " %sIE %u%s  pend %c%c  EPC %03X  %s",
-              antes && antes->ie != cpu->ie ? color_cambio() : cpu->ie ? "" : color_tenue(), cpu->ie,
-              color_reset(), cpu->pendientes & INT_BOTONES ? 'B' : '-',
-              cpu->pendientes & INT_TEMPORIZADOR ? 'T' : '-', cpu->epc, tim);
-    }
     if (s->aire)
         LINEA(P, "");
 }
@@ -624,7 +607,7 @@ static void panel_pantalla(Panel *P, const CPU *cpu, int filas, int ancho, int r
 
     if (rgb) {
         uint32_t pos = palabra_en(cpu, RGB_POS_DIR);
-        LINEA(P, "POSICION x %u  y %u      COLOR 0x%06X      (sw a 0x610 y 0x614)",
+        LINEA(P, "POSICION x %u  y %u      COLOR 0x%06X      (sw a 0x604 y 0x608)",
               pos & 0xFFFF, pos >> 16, palabra_en(cpu, RGB_COLOR_DIR) & 0xFFFFFF);
     } else if (color_reset()[0]) {
         k = (size_t)snprintf(paleta, sizeof paleta, "%scolor:%s", color_tenue(), color_reset());
@@ -882,9 +865,6 @@ static int avanzar(Sesion *s, int sin_limite)
     }
     if (s->hist[s->k].cpu.pide_entero)
         pedir_entero(s);
-    if (s->hist[s->k].cpu.int_atendida)
-        snprintf(s->mensaje, sizeof s->mensaje, "INTERRUPCIÓN: salto a la ISR en 0x%03X (vuelve a 0x%03X)",
-                 s->hist[s->k].cpu.pc, s->hist[s->k].cpu.epc);
 
     /* Si se escribió en memoria fuera de lo visible, mover la ventana de datos.
      * La primera escritura en la pantalla cambia la vista automáticamente. */
@@ -928,7 +908,7 @@ static char *recortar(char *t)
     return t;
 }
 
-/* Elimina los espacios: permite escribir "mem [ 0x610 ]" o "rgb[3, 2]". */
+/* Elimina los espacios: permite escribir "mem [ 0x604 ]" o "rgb[3, 2]". */
 static void quitar_espacios(char *t)
 {
     char *d = t;
@@ -989,7 +969,7 @@ static void asignar(Sesion *s, char *cmd)
 
     *igual = '\0';
     lhs = recortar(cmd);
-    quitar_espacios(lhs);                /* "mem [ 0x610 ]" = "mem[0x610]" */
+    quitar_espacios(lhs);                /* "mem [ 0x604 ]" = "mem[0x604]" */
     rhs = recortar(igual + 1);
     if (!leer_numero(rhs, &valor) || valor < -2147483648LL) {
         snprintf(s->mensaje, sizeof s->mensaje, "valor inválido '%s'", rhs);
@@ -1006,11 +986,6 @@ static void asignar(Sesion *s, char *cmd)
     if (strcmp(lhs, "hi") == 0 || strcmp(lhs, "lo") == 0) {
         *(lhs[0] == 'h' ? &cpu->hi : &cpu->lo) = (uint32_t)valor;
         snprintf(s->mensaje, sizeof s->mensaje, "%s = 0x%08X", lhs, (uint32_t)valor);
-        return;
-    }
-    if (strcmp(lhs, "ie") == 0 || strcmp(lhs, "epc") == 0) {
-        *(lhs[0] == 'i' ? &cpu->ie : &cpu->epc) = lhs[0] == 'i' ? (valor != 0) : (uint32_t)valor;
-        snprintf(s->mensaje, sizeof s->mensaje, "%s = 0x%X", lhs, lhs[0] == 'i' ? cpu->ie : cpu->epc);
         return;
     }
     if (strcmp(lhs, "acc") == 0 || strcmp(lhs, "ACC") == 0) {
@@ -1040,7 +1015,7 @@ static void asignar(Sesion *s, char *cmd)
         return;
     }
     if ((uint32_t)dir == BOTONES_DIR) {
-        cambiar_botones(cpu, (uint32_t)valor);         /* puede pedir una interrupción */
+        cambiar_botones(cpu, (uint32_t)valor);
     } else if ((uint32_t)dir == RGB_COLOR_DIR) {
         poner_palabra(cpu, (uint32_t)dir, (uint32_t)valor);
         rgb_escribir_color(cpu, (uint32_t)valor);      /* el dispositivo dibuja */
