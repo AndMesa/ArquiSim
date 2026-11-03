@@ -1177,62 +1177,80 @@ static void editar(Sesion *s, char *errores, size_t tam)
                  s->p->num_instr);
 }
 
-/* Pantalla para elegir un programa. Devuelve 1 si cargó uno, 0 si se canceló
- * y -1 si el usuario quiere salir. */
+/* Une una carpeta y un nombre ("." + "x" = "x"). */
+static void unir_ruta(char *dest, size_t tam, const char *dir, const char *nombre)
+{
+    if (strcmp(dir, ".") == 0)
+        snprintf(dest, tam, "%s", nombre);
+    else
+        snprintf(dest, tam, "%s/%s", dir, nombre);
+}
+
+/* Sube un nivel: "programas/ejemplos" -> "programas", "programas" -> ".", "." -> "..". */
+static void subir_carpeta(char *dir, size_t tam)
+{
+    char *barra = strrchr(dir, '/');
+    const char *ultima = barra ? barra + 1 : dir;
+
+    if (strcmp(dir, ".") == 0)
+        snprintf(dir, tam, "..");
+    else if (strcmp(ultima, "..") == 0)
+        strncat(dir, "/..", tam - strlen(dir) - 1);
+    else if (barra)
+        *barra = '\0';
+    else
+        snprintf(dir, tam, ".");
+}
+
+/* Pantalla para elegir un programa: navega por las carpetas (empieza en programas/)
+ * y muestra sus subcarpetas y archivos .asm. Devuelve 1 si cargó uno, 0 si se
+ * canceló y -1 si el usuario quiere salir. */
 static int elegir_programa(Sesion *s, const char *error_previo)
 {
-    static char nombres[64][MAX_NOMBRE_ARCHIVO];
-    static const char *subcarpetas[] = { "ejemplos", "etapa_1", "etapa_2", "etapa_3",
-                                         "etapa_4", "etapa_5" };
-    char linea[MAX_RUTA], ruta[MAX_RUTA], errores[MAX_ERRORES], cwd[512];
-    const char *dir;
-    int n, i, j, columnas, hay_programa = s->p->ruta[0] != '\0';
+    static char carpetas[32][MAX_NOMBRE_ARCHIVO], archivos[64][MAX_NOMBRE_ARCHIVO];
+    static char dir[MAX_RUTA] = "";             /* se recuerda entre llamadas */
+    char linea[MAX_RUTA], ruta[MAX_RUTA], errores[MAX_ERRORES], cwd[512], nombre[MAX_NOMBRE_ARCHIVO + 1];
+    int nc, na, n, i, columnas, hay_programa = s->p->ruta[0] != '\0';
     long long v;
     char *cmd;
 
+    if (dir[0] == '\0') {
+        nc = terminal_listar_carpetas("programas", carpetas, 32);
+        na = terminal_listar_asm("programas", archivos, 64);
+        snprintf(dir, sizeof dir, "%s", nc + na > 0 ? "programas" : ".");
+    }
     snprintf(errores, sizeof errores, "%s", error_previo ? error_previo : "");
     for (;;) {
-        /* primero las subcarpetas (ejemplos, ejercicios por etapa) y luego los propios (programas/) */
-        dir = "programas";
-        n = 0;
-        for (j = 0; j < (int)(sizeof subcarpetas / sizeof subcarpetas[0]); j++) {
-            char ruta_sub[MAX_RUTA];
-            int k, m;
-            snprintf(ruta_sub, sizeof ruta_sub, "%s/%s", dir, subcarpetas[j]);
-            m = terminal_listar_asm(ruta_sub, nombres + n, 64 - n);
-            for (k = n; k < n + m; k++) {
-                char nombre[MAX_NOMBRE_ARCHIVO];
-                snprintf(nombre, sizeof nombre, "%s", nombres[k]);
-                snprintf(nombres[k], MAX_NOMBRE_ARCHIVO, "%s/%s", subcarpetas[j], nombre);
-            }
-            n += m;
-        }
-        n += terminal_listar_asm(dir, nombres + n, 64 - n);
-        if (n == 0) {
-            dir = ".";
-            n = terminal_listar_asm(dir, nombres, 64);
-        }
+        nc = terminal_listar_carpetas(dir, carpetas, 32);
+        na = terminal_listar_asm(dir, archivos, 64);
+        n = nc + na;
         columnas = n > 12 ? 2 : 1;
 
         printf("\033[H\033[2J%sArquiSim: cargar programa%s\n\n", color_negrita(), color_reset());
-        if (n == 0)
-            printf("No hay archivos .asm en programas/ejemplos/, programas/ ni en el directorio actual.\n");
-        else
-            printf("Programas en %s/\n\n", dir);
         terminal_directorio(cwd, sizeof cwd);
-        printf("%s(directorio actual: %s)%s\n\n", color_tenue(), cwd, color_reset());
-        for (i = 0; i < n; i++)
-            printf("  %s%2d)%s %-34s%s", color_titulo(), i + 1, color_reset(), nombres[i],
+        printf("Carpeta: %s%s/%s   %s(directorio actual: %s)%s\n\n", color_titulo(), dir, color_reset(),
+               color_tenue(), cwd, color_reset());
+        printf("  %s 0)%s ../  (subir)\n", color_titulo(), color_reset());
+        if (n == 0)
+            printf("\n  (no hay carpetas ni archivos .asm aquí)\n");
+        for (i = 0; i < n; i++) {
+            if (i < nc)
+                snprintf(nombre, sizeof nombre, "%s/", carpetas[i]);
+            else
+                snprintf(nombre, sizeof nombre, "%s", archivos[i - nc]);
+            printf("  %s%2d)%s %-34s%s", color_titulo(), i + 1, color_reset(), nombre,
                    (i % columnas == columnas - 1 || i == n - 1) ? "\n" : "");
+        }
         if (errores[0])
             printf("\n%sNo se pudo cargar:%s\n%s", color_rojo(), color_reset(), errores);
-        printf("\nEscriba el número o la ruta de un archivo .asm  (%sq = salir):\n> ",
+        printf("\nEscriba un número (carpeta = entrar, 0 = subir) o la ruta de un .asm  (%sq = salir):\n> ",
                hay_programa ? "Enter = volver, " : "");
         fflush(stdout);
 
         if (!terminal_leer_linea(linea, sizeof linea, &s->historial))
             return -1;
         cmd = recortar(linea);
+        errores[0] = '\0';
         if (strcmp(cmd, "q") == 0)
             return -1;
         if (cmd[0] == '\0') {
@@ -1240,10 +1258,27 @@ static int elegir_programa(Sesion *s, const char *error_previo)
                 return 0;
             continue;
         }
-        if (leer_numero(cmd, &v) && v >= 1 && v <= n)
-            snprintf(ruta, sizeof ruta, "%s/%s", dir, nombres[v - 1]);
-        else
-            snprintf(ruta, sizeof ruta, "%s", cmd);
+        if (strcmp(cmd, "..") == 0 || strcmp(cmd, "0") == 0) {
+            subir_carpeta(dir, sizeof dir);
+            continue;
+        }
+        if (leer_numero(cmd, &v) && v >= 1 && v <= nc) {     /* entrar a una carpeta */
+            unir_ruta(ruta, sizeof ruta, dir, carpetas[v - 1]);
+            snprintf(dir, sizeof dir, "%s", ruta);
+            continue;
+        }
+        if (leer_numero(cmd, &v) && v > nc && v <= n) {
+            unir_ruta(ruta, sizeof ruta, dir, archivos[v - nc - 1]);
+        } else {
+            /* una ruta escrita: relativa al directorio actual o, si no existe, a la carpeta mostrada */
+            FILE *f = fopen(cmd, "r");
+            if (f)
+                fclose(f);
+            if (!f && cmd[0] != '/')
+                unir_ruta(ruta, sizeof ruta, dir, cmd);
+            else
+                snprintf(ruta, sizeof ruta, "%s", cmd);
+        }
         if (cargar(s, ruta, errores, sizeof errores))
             return 1;
     }

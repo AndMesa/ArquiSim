@@ -21,6 +21,7 @@
 #else
 #include <dirent.h>
 #include <poll.h>
+#include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <time.h>
@@ -178,6 +179,45 @@ int terminal_listar_asm(const char *directorio, char nombres[][MAX_NOMBRE_ARCHIV
     while ((e = readdir(d)) != NULL)
         if (n < max && termina_en_asm(e->d_name) && strlen(e->d_name) < MAX_NOMBRE_ARCHIVO)
             strcpy(nombres[n++], e->d_name);
+    closedir(d);
+#endif
+    qsort(nombres, (size_t)n, MAX_NOMBRE_ARCHIVO, comparar);
+    return n;
+}
+
+int terminal_listar_carpetas(const char *directorio, char nombres[][MAX_NOMBRE_ARCHIVO], int max)
+{
+    int n = 0;
+#ifdef _WIN32
+    struct _finddata_t info;
+    intptr_t h;
+    char patron[512];
+
+    snprintf(patron, sizeof patron, "%s\\*", directorio);
+    h = _findfirst(patron, &info);
+    if (h != -1) {
+        do {
+            if (n < max && (info.attrib & _A_SUBDIR) && info.name[0] != '.' &&
+                strlen(info.name) < MAX_NOMBRE_ARCHIVO)
+                strcpy(nombres[n++], info.name);
+        } while (_findnext(h, &info) == 0);
+        _findclose(h);
+    }
+#else
+    DIR *d = opendir(directorio);
+    struct dirent *e;
+    struct stat st;
+    char ruta[1024];
+
+    if (!d)
+        return 0;
+    while ((e = readdir(d)) != NULL) {
+        if (n >= max || e->d_name[0] == '.' || strlen(e->d_name) >= MAX_NOMBRE_ARCHIVO)
+            continue;               /* omite ".", ".." y las carpetas ocultas */
+        snprintf(ruta, sizeof ruta, "%s/%s", directorio, e->d_name);
+        if (stat(ruta, &st) == 0 && S_ISDIR(st.st_mode))
+            strcpy(nombres[n++], e->d_name);
+    }
     closedir(d);
 #endif
     qsort(nombres, (size_t)n, MAX_NOMBRE_ARCHIVO, comparar);

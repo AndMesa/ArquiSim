@@ -41,4 +41,7 @@ void terminal_directorio(char *buf, size_t tam);
 #define MAX_NOMBRE_ARCHIVO 128
 int  terminal_listar_asm(const char *directorio, char nombres[][MAX_NOMBRE_ARCHIVO], int max);
 
+/* Lista (ordenadas) las subcarpetas de un directorio, sin las ocultas. Devuelve cuántas. */
+int  terminal_listar_carpetas(const char *directorio, char nombres[][MAX_NOMBRE_ARCHIVO], int max);
+
 #endif

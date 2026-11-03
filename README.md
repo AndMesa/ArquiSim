@@ -8,7 +8,7 @@ por instrucción, mostrando cómo cambian los registros y la memoria.
 
 ```sh
 make                                         # compila ./sim
-./sim                                        # interfaz interactiva: elige un programa de la lista
+./sim                                        # interfaz interactiva: explora programas/ y elige uno
 ./sim programas/ejemplos/00_suma.asm         # interfaz interactiva con ese programa
 ./sim --traza programas/ejemplos/00_suma.asm # imprime todos los pasos, sin interfaz
 make test                                    # ejecuta los ejemplos y sus programas propios
@@ -58,7 +58,7 @@ memoria, `#` es código, `=` datos y `s` pila.
 | `c`       | Continúa hasta el final (o hasta una excepción). |
 | `p`       | Alterna el panel izquierdo: programa → pantalla (16 colores) → pantalla RGB → consola. |
 | `bt 3`    | Activa o desactiva el botón 3 (`bt` solo los apaga todos). |
-| `l`       | Muestra la lista de programas para cargar otro (`l ruta.asm` lo carga directamente). |
+| `l`       | Abre el explorador de programas para cargar otro (`l ruta.asm` lo carga directamente). Empieza en `programas/`: un número entra a una carpeta o carga un `.asm`, `0` (o `..`) sube un nivel. |
 | `e`       | Abre el programa en un editor y lo recarga al cerrarlo. Usa la variable `EDITOR` (por defecto `nano`; para VS Code: `export EDITOR="code --wait"`). |
 | `r`       | Recarga el programa actual desde el disco (si lo editó en otra ventana). |
 | `bp LOOP` | Activa o desactiva un punto de parada (etiqueta o dirección); `c` y `a` se detienen allí. `bp` solo los borra todos. |
