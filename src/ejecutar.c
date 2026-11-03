@@ -62,6 +62,86 @@ Resultado ejecutar(CPU *cpu, const Instruccion *in)
         return OK;
     }
 
+    /* ================ Etapa 1: aritméticas y lógicas ================ */
+
+    /* ---------------- sub rd, rs, rt ---------------- */
+    if (es(in, "sub")) {
+        uint32_t r = restar_con_banderas(cpu, cpu->reg[in->rs], cpu->reg[in->rt]);
+        if (cpu->banderas & BANDERA_V)
+            return excepcion(cpu, "desbordamiento aritmético en sub");
+        escribir_registro(cpu, in->rd, r);
+        return OK;
+    }
+
+    /* ---------------- addu, subu, addiu: igual, pero SIN excepción ---------------- */
+    if (es(in, "addu")) {
+        escribir_registro(cpu, in->rd, sumar_con_banderas(cpu, cpu->reg[in->rs], cpu->reg[in->rt]));
+        return OK;
+    }
+    if (es(in, "subu")) {
+        escribir_registro(cpu, in->rd, restar_con_banderas(cpu, cpu->reg[in->rs], cpu->reg[in->rt]));
+        return OK;
+    }
+    if (es(in, "addiu")) {
+        /* a pesar de la "u", el inmediato se extiende con signo */
+        escribir_registro(cpu, in->rt, sumar_con_banderas(cpu, cpu->reg[in->rs], (uint32_t)in->simm));
+        return OK;
+    }
+
+    /* ---------------- lógicas tipo R: rd = rs op rt ---------------- */
+    if (es(in, "and")) {
+        escribir_registro(cpu, in->rd, banderas_logicas(cpu, cpu->reg[in->rs] & cpu->reg[in->rt]));
+        return OK;
+    }
+    if (es(in, "or")) {
+        escribir_registro(cpu, in->rd, banderas_logicas(cpu, cpu->reg[in->rs] | cpu->reg[in->rt]));
+        return OK;
+    }
+    if (es(in, "xor")) {
+        escribir_registro(cpu, in->rd, banderas_logicas(cpu, cpu->reg[in->rs] ^ cpu->reg[in->rt]));
+        return OK;
+    }
+    if (es(in, "nor")) {
+        escribir_registro(cpu, in->rd, banderas_logicas(cpu, ~(cpu->reg[in->rs] | cpu->reg[in->rt])));
+        return OK;
+    }
+
+    /* ---------------- lógicas tipo I: el inmediato se extiende con CEROS (in->imm) ---------------- */
+    if (es(in, "andi")) {
+        escribir_registro(cpu, in->rt, banderas_logicas(cpu, cpu->reg[in->rs] & in->imm));
+        return OK;
+    }
+    if (es(in, "ori")) {
+        escribir_registro(cpu, in->rt, banderas_logicas(cpu, cpu->reg[in->rs] | in->imm));
+        return OK;
+    }
+    if (es(in, "xori")) {
+        escribir_registro(cpu, in->rt, banderas_logicas(cpu, cpu->reg[in->rs] ^ in->imm));
+        return OK;
+    }
+
+    /* ---------------- lui rt, imm: el inmediato va a los 16 bits altos ---------------- */
+    if (es(in, "lui")) {
+        escribir_registro(cpu, in->rt, in->imm << 16);
+        return OK;
+    }
+
+    /* ---------------- desplazamientos: operan sobre rt, cantidad en shamt ---------------- */
+    if (es(in, "sll")) {
+        escribir_registro(cpu, in->rd, cpu->reg[in->rt] << in->shamt);
+        return OK;
+    }
+    if (es(in, "srl")) {
+        escribir_registro(cpu, in->rd, cpu->reg[in->rt] >> in->shamt);     /* rellena con ceros */
+        return OK;
+    }
+    if (es(in, "sra")) {
+        uint32_t x = cpu->reg[in->rt];
+        /* copia el bit de signo: si x es negativo, desplazar el complemento y volver a complementar */
+        escribir_registro(cpu, in->rd, (x & 0x80000000u) ? ~(~x >> in->shamt) : x >> in->shamt);
+        return OK;
+    }
+
     /*
      * TODO: para cada instrucción nueva
      *   1. agregue su línea en isa.txt (formato, opcode, funct, operandos)
@@ -69,7 +149,7 @@ Resultado ejecutar(CPU *cpu, const Instruccion *in)
      *
      * Orden sugerido (cada etapa tiene programas de prueba en programas/):
      *
-     *   Etapa 1 - Aritméticas y lógicas
+     *   Etapa 1 - Aritméticas y lógicas                         (YA IMPLEMENTADA)
      *     01_aritmetica   sub
      *     02_logica       lui, ori, and, andi, nor, sll, srl, sra
      *     03_xor          or, xor, xori

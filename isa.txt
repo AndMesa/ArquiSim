@@ -2,8 +2,8 @@
 #  isa.txt -- El ISA de ArquiSim, un MIPS reducido (el CONTRATO entre software y hardware)
 # =====================================================================
 #  Este archivo define QUÉ instrucciones existen y CÓMO se codifican.
-#  El proyecto base solo trae add y addi: usted agrega aquí cada instrucción
-#  nueva (con la codificación dada en clase) y la implementa en src/ejecutar.c.
+#  Ya trae add, addi y las instrucciones de la Etapa 1: usted agrega aquí cada
+#  instrucción nueva (con la codificación dada en clase) y la implementa en src/ejecutar.c.
 #  El simulador lo usa para ensamblar los programas (.asm -> binario) y
 #  para decodificar cada instrucción.  QUÉ HACE cada una se implementa
 #  en src/ejecutar.c.
@@ -43,4 +43,27 @@
 add    R  000000  100000  rd,rs,rt     # rd = rs + rt        (excepción si desborda)
 addi   I  001000  -       rt,rs,imm    # rt = rs + imm       (imm con signo; excepción si desborda)
 
-# ---------------- Agregue aquí las demás instrucciones ----------------
+# ---------------- Etapa 1: aritméticas (tipo R) ----------------
+addu   R  000000  100001  rd,rs,rt     # rd = rs + rt        (sin excepción)
+sub    R  000000  100010  rd,rs,rt     # rd = rs - rt        (excepción si desborda)
+subu   R  000000  100011  rd,rs,rt     # rd = rs - rt        (sin excepción)
+
+# ---------------- Etapa 1: lógicas (tipo R) ----------------
+and    R  000000  100100  rd,rs,rt     # rd = rs AND rt
+or     R  000000  100101  rd,rs,rt     # rd = rs OR rt
+xor    R  000000  100110  rd,rs,rt     # rd = rs XOR rt
+nor    R  000000  100111  rd,rs,rt     # rd = NOT (rs OR rt)
+
+# ---------------- Etapa 1: desplazamientos (tipo R) ----------------
+sll    R  000000  000000  rd,rt,shamt  # rd = rt << shamt
+srl    R  000000  000010  rd,rt,shamt  # rd = rt >> shamt    (rellena con 0)
+sra    R  000000  000011  rd,rt,shamt  # rd = rt >> shamt    (conserva el signo)
+
+# ---------------- Etapa 1: con inmediato (tipo I) ----------------
+addiu  I  001001  -       rt,rs,imm    # rt = rs + imm       (imm con signo; sin excepción)
+andi   I  001100  -       rt,rs,imm    # rt = rs AND imm     (imm extendido con ceros)
+ori    I  001101  -       rt,rs,imm    # rt = rs OR imm      (imm extendido con ceros)
+xori   I  001110  -       rt,rs,imm    # rt = rs XOR imm     (imm extendido con ceros)
+lui    I  001111  -       rt,imm       # rt = imm << 16
+
+# ---------------- Agregue aquí las instrucciones de las etapas 2 a 5 ----------------
