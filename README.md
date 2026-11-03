@@ -7,11 +7,11 @@ por instrucción, mostrando cómo cambian los registros y la memoria.
 ## Compilar y ejecutar
 
 ```sh
-make                                # compila ./sim
-./sim                               # interfaz interactiva: elige un programa de programas/
-./sim programas/00_suma.asm         # interfaz interactiva con ese programa
-./sim --traza programas/00_suma.asm # imprime todos los pasos, sin interfaz
-make test                           # ejecuta todos los programas de prueba
+make                                         # compila ./sim
+./sim                                        # interfaz interactiva: elige un programa de la lista
+./sim programas/ejemplos/00_suma.asm         # interfaz interactiva con ese programa
+./sim --traza programas/ejemplos/00_suma.asm # imprime todos los pasos, sin interfaz
+make test                                    # ejecuta los ejemplos y sus programas propios
 ```
 
 ### Interfaz interactiva
@@ -90,8 +90,9 @@ memoria, `#` es código, `=` datos y `s` pila.
 | Archivo | Qué es |
 |---|---|
 | `isa.txt` | **El ISA**: qué instrucciones existen y cómo se codifican (el contrato). | 
-| `programas/*.asm` | **El software**: programas de prueba. | 
-| `programas/*.esperado` | Estado final esperado de cada programa. | 
+| `programas/ejemplos/*.asm` | **El software**: programas de prueba (no se modifican). |
+| `programas/ejemplos/*.esperado` | Estado final esperado de cada programa. |
+| `programas/` | Sus programas propios: `make test` también los ejecuta si tienen `.esperado`. |
 | `src/ejecutar.c` | **La microarquitectura**: qué hace el hardware con cada instrucción. | 
 | `src/main.c` | Opciones y modos de ejecución. | 
 | `src/ciclo.c` | Ciclo Fetch → Decode → Execute. | 
@@ -109,7 +110,7 @@ en las **dos capas**:
 1. **ISA** (`isa.txt`): agregue una línea con su formato, opcode, funct y operandos,
    según la codificación dada en clase. Sin esa línea, el ensamblador responde:
    ```
-   programas/01_aritmetica.asm:13: error: instrucción desconocida 'sub' (no está definida en el ISA)
+   programas/ejemplos/01_aritmetica.asm:13: error: instrucción desconocida 'sub' (no está definida en el ISA)
    ```
 2. **Microarquitectura** (`src/ejecutar.c`): implemente lo que hace. Sin eso, el procesador
    se detiene con una excepción:
@@ -201,7 +202,7 @@ Los 8 botones son un dispositivo de **entrada**: el programa los lee con
 cambiarlos. En la interfaz se activan y desactivan con `bt n` (`bt` solo los apaga).
 
 Como el programa no se entera cuando alguien presiona un botón, tiene que leerlos una
-y otra vez en un ciclo: eso se llama **sondeo** (*polling*). Vea `programas/17_botones.asm`:
+y otra vez en un ciclo: eso se llama **sondeo** (*polling*). Vea `programas/ejemplos/17_botones.asm`:
 ponga `bp LEER`, active botones con `bt 3` y continúe con `c`. O más directo: ejecútelo en
 **tiempo real** con `a 10` y presione las teclas `0`–`7` mientras corre.
 

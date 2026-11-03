@@ -147,7 +147,7 @@ Resultado ejecutar(CPU *cpu, const Instruccion *in)
      *   1. agregue su línea en isa.txt (formato, opcode, funct, operandos)
      *   2. implemente aquí lo que hace
      *
-     * Orden sugerido (cada etapa tiene programas de prueba en programas/):
+     * Orden sugerido (cada etapa tiene programas de prueba en programas/ejemplos/):
      *
      *   Etapa 1 - Aritméticas y lógicas                         (YA IMPLEMENTADA)
      *     01_aritmetica   sub

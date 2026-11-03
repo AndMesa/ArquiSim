@@ -1190,8 +1190,15 @@ static int elegir_programa(Sesion *s, const char *error_previo)
 
     snprintf(errores, sizeof errores, "%s", error_previo ? error_previo : "");
     for (;;) {
+        /* primero los ejemplos (programas/ejemplos/) y luego los propios (programas/) */
         dir = "programas";
-        n = terminal_listar_asm(dir, nombres, 64);
+        n = terminal_listar_asm("programas/ejemplos", nombres, 64);
+        for (i = 0; i < n; i++) {
+            char nombre[MAX_NOMBRE_ARCHIVO];
+            snprintf(nombre, sizeof nombre, "%s", nombres[i]);
+            snprintf(nombres[i], MAX_NOMBRE_ARCHIVO, "ejemplos/%s", nombre);
+        }
+        n += terminal_listar_asm(dir, nombres + n, 64 - n);
         if (n == 0) {
             dir = ".";
             n = terminal_listar_asm(dir, nombres, 64);
@@ -1200,7 +1207,7 @@ static int elegir_programa(Sesion *s, const char *error_previo)
 
         printf("\033[H\033[2J%sArquiSim: cargar programa%s\n\n", color_negrita(), color_reset());
         if (n == 0)
-            printf("No hay archivos .asm en programas/ ni en el directorio actual.\n");
+            printf("No hay archivos .asm en programas/ejemplos/, programas/ ni en el directorio actual.\n");
         else
             printf("Programas en %s/\n\n", dir);
         terminal_directorio(cwd, sizeof cwd);

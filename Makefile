@@ -1,6 +1,6 @@
 # ArquiSim
 #   make         compila ./sim
-#   make test    ejecuta todos los programas de prueba
+#   make test    ejecuta los ejemplos (programas/ejemplos/) y los programas propios (programas/)
 #   make clean   borra el ejecutable
 
 CC     ?= cc
@@ -15,7 +15,8 @@ sim: $(SRC) $(HDR)
 
 test: sim
 	@pasan=0; total=0; \
-	for f in programas/*.asm; do \
+	for f in programas/ejemplos/*.asm programas/*.asm; do \
+	  [ -e "$${f%.asm}.esperado" ] || continue; \
 	  total=$$((total + 1)); \
 	  if $(SIM) -t $$f; then pasan=$$((pasan + 1)); fi; \
 	done; \

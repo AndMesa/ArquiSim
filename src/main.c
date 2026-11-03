@@ -43,7 +43,7 @@ static void uso(const char *nombre)
         "Uso: %s [opciones] [programa.asm]\n"
         "\n"
         "Sin opciones abre la interfaz interactiva (pantalla completa). Sin programa,\n"
-        "muestra la lista de programas de la carpeta programas/ para elegir uno.\n"
+        "muestra la lista de programas de programas/ejemplos/ y programas/ para elegir uno.\n"
         "\n"
         "Opciones:\n"
         "  --traza     imprime todos los pasos uno tras otro, sin interfaz\n"
