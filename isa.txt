@@ -2,7 +2,7 @@
 #  isa.txt -- El ISA de ArquiSim, un MIPS reducido (el CONTRATO entre software y hardware)
 # =====================================================================
 #  Este archivo define QUÉ instrucciones existen y CÓMO se codifican.
-#  Ya trae add, addi y las instrucciones de la Etapa 1: usted agrega aquí cada
+#  Ya trae add, addi y las instrucciones de las Etapas 1 a 3: usted agrega aquí cada
 #  instrucción nueva (con la codificación dada en clase) y la implementa en src/ejecutar.c.
 #  El simulador lo usa para ensamblar los programas (.asm -> binario) y
 #  para decodificar cada instrucción.  QUÉ HACE cada una se implementa
@@ -66,4 +66,34 @@ ori    I  001101  -       rt,rs,imm    # rt = rs OR imm      (imm extendido con 
 xori   I  001110  -       rt,rs,imm    # rt = rs XOR imm     (imm extendido con ceros)
 lui    I  001111  -       rt,imm       # rt = imm << 16
 
-# ---------------- Agregue aquí las instrucciones de las etapas 2 a 5 ----------------
+# ---------------- Etapa 2: memoria (base + desplazamiento) ----------------
+lw     I  100011  -       rt,imm(rs)   # rt = MEM32[rs + imm]
+sw     I  101011  -       rt,imm(rs)   # MEM32[rs + imm] = rt
+lb     I  100000  -       rt,imm(rs)   # rt = MEM8[rs + imm]  (extensión de signo)
+lbu    I  100100  -       rt,imm(rs)   # rt = MEM8[rs + imm]  (extensión con ceros)
+sb     I  101000  -       rt,imm(rs)   # MEM8[rs + imm] = 8 bits menos significativos de rt
+
+# ---------------- Etapa 3: comparaciones ----------------
+slt    R  000000  101010  rd,rs,rt     # rd = (rs < rt) ? 1 : 0   con signo
+sltu   R  000000  101011  rd,rs,rt     # rd = (rs < rt) ? 1 : 0   sin signo
+slti   I  001010  -       rt,rs,imm    # rt = (rs < imm) ? 1 : 0  con signo
+
+# ---------------- Etapa 3: saltos condicionales (relativos al PC) ----------------
+beq    I  000100  -       rs,rt,label  # si rs == rt: PC = PC + 4 + imm*4
+bne    I  000101  -       rs,rt,label  # si rs != rt: PC = PC + 4 + imm*4
+
+# ---------------- Etapa 3: saltos incondicionales ----------------
+j      J  000010  -       label        # PC = (PC+4)[31:28] | dirección*4
+jal    J  000011  -       label        # $ra = PC + 4;  PC = (PC+4)[31:28] | dirección*4
+jr     R  000000  001000  rs           # PC = rs
+
+# ---------------- Etapa 3: pseudoinstrucciones (no se implementan en ejecutar.c) ----------------
+move   R  000000  100000  rd,rs,rt=$zero           add    # move $t0, $t1   ->  add  $t0, $t1, $zero
+not    R  000000  100111  rd,rs,rt=$zero           nor    # not $t0, $t1    ->  nor  $t0, $t1, $zero
+clear  R  000000  100000  rd,rs=$zero,rt=$zero     add    # clear $t0       ->  add  $t0, $zero, $zero
+nop    R  000000  000000  -                        sll    # nop             ->  sll  $zero, $zero, 0
+li     I  001000  -       rt,imm,rs=$zero          addi   # li $t0, 42      ->  addi $t0, $zero, 42
+la     I  001000  -       rt,imm,rs=$zero          addi   # la $t0, A       ->  addi $t0, $zero, A
+b      I  000100  -       label,rs=$zero,rt=$zero  beq    # b LOOP          ->  beq  $zero, $zero, LOOP
+
+# ---------------- Agregue aquí las instrucciones de las etapas 4 y 5 ----------------

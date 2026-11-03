@@ -1,0 +1,5 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+$s0 = ?
+mem[0x210] = ?   # SUMA
+mem[0x200] = ?   # A[0]
+mem[0x20C] = ?   # A[3]

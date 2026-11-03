@@ -1,0 +1,3 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+mem[0x21C] = ?   # suma
+mem[0x220] = ?   # neg

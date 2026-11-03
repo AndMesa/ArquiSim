@@ -142,6 +142,77 @@ Resultado ejecutar(CPU *cpu, const Instruccion *in)
         return OK;
     }
 
+    /* ================ Etapa 2: memoria ================ */
+    /* Todas usan base + desplazamiento: dirección = rs + imm (imm con signo). */
+
+    /* ---------------- lw rt, imm(rs) / sw rt, imm(rs): palabras de 32 bits ---------------- */
+    if (es(in, "lw")) {
+        uint32_t valor;
+        if (leer_palabra(cpu, cpu->reg[in->rs] + (uint32_t)in->simm, &valor) != OK)
+            return EXCEPCION;               /* fuera de rango o no alineada */
+        escribir_registro(cpu, in->rt, valor);
+        return OK;
+    }
+    if (es(in, "sw"))
+        return escribir_palabra(cpu, cpu->reg[in->rs] + (uint32_t)in->simm, cpu->reg[in->rt]);
+
+    /* ---------------- lb, lbu, sb: bytes ---------------- */
+    if (es(in, "lb") || es(in, "lbu")) {
+        uint8_t byte;
+        if (leer_byte(cpu, cpu->reg[in->rs] + (uint32_t)in->simm, &byte) != OK)
+            return EXCEPCION;
+        if (es(in, "lb"))                   /* extiende el signo: copia el bit 7 hacia la izquierda */
+            escribir_registro(cpu, in->rt, (uint32_t)(int32_t)(int8_t)byte);
+        else                                /* lbu: rellena con ceros */
+            escribir_registro(cpu, in->rt, byte);
+        return OK;
+    }
+    if (es(in, "sb"))                       /* guarda los 8 bits bajos */
+        return escribir_byte(cpu, cpu->reg[in->rs] + (uint32_t)in->simm, (uint8_t)cpu->reg[in->rt]);
+
+    /* ================ Etapa 3: comparaciones y saltos ================ */
+    /* cpu->pc ya vale PC + 4: los saltos relativos se cuentan desde ahí. */
+
+    /* ---------------- comparaciones: escriben 1 o 0, no cambian las banderas ---------------- */
+    if (es(in, "slt")) {
+        escribir_registro(cpu, in->rd, (int32_t)cpu->reg[in->rs] < (int32_t)cpu->reg[in->rt]);
+        return OK;
+    }
+    if (es(in, "sltu")) {
+        escribir_registro(cpu, in->rd, cpu->reg[in->rs] < cpu->reg[in->rt]);
+        return OK;
+    }
+    if (es(in, "slti")) {
+        escribir_registro(cpu, in->rt, (int32_t)cpu->reg[in->rs] < in->simm);
+        return OK;
+    }
+
+    /* ---------------- beq, bne: saltos condicionales relativos al PC ---------------- */
+    if (es(in, "beq")) {
+        if (cpu->reg[in->rs] == cpu->reg[in->rt])
+            cpu->pc += (uint32_t)in->simm << 2;     /* imm cuenta instrucciones: x4 */
+        return OK;
+    }
+    if (es(in, "bne")) {
+        if (cpu->reg[in->rs] != cpu->reg[in->rt])
+            cpu->pc += (uint32_t)in->simm << 2;
+        return OK;
+    }
+
+    /* ---------------- j, jal: saltos pseudodirectos (tipo J) ---------------- */
+    if (es(in, "jal"))
+        escribir_registro(cpu, REG_RA, cpu->pc);    /* dirección de retorno: PC + 4 */
+    if (es(in, "j") || es(in, "jal")) {
+        cpu->pc = (cpu->pc & 0xF0000000u) | (in->direccion << 2);
+        return OK;
+    }
+
+    /* ---------------- jr rs: saltar a la dirección guardada en un registro ---------------- */
+    if (es(in, "jr")) {
+        cpu->pc = cpu->reg[in->rs];
+        return OK;
+    }
+
     /*
      * TODO: para cada instrucción nueva
      *   1. agregue su línea en isa.txt (formato, opcode, funct, operandos)
@@ -155,10 +226,10 @@ Resultado ejecutar(CPU *cpu, const Instruccion *in)
      *     03_xor          or, xor, xori
      *     04_sin_signo    addu, subu, addiu
      *     05_excepcion    (add/addi deben detectar el desbordamiento)
-     *   Etapa 2 - Memoria
+     *   Etapa 2 - Memoria                                       (YA IMPLEMENTADA)
      *     06_memoria      lw, sw
      *     07_bytes        lb, lbu, sb
-     *   Etapa 3 - Control de flujo
+     *   Etapa 3 - Control de flujo                              (YA IMPLEMENTADA)
      *     08_if           bne, j
      *     09_ciclo        slt
      *     10_comparaciones sltu, slti, beq

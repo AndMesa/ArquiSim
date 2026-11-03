@@ -1,0 +1,8 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+$s0 = ?
+$s1 = ?
+$s2 = ?
+$s3 = ?
+$s4 = ?
+mem[0x200] = ?   # V completo
+mem[0x204] = ?   # W

@@ -92,7 +92,7 @@ memoria, `#` es código, `=` datos y `s` pila.
 | `isa.txt` | **El ISA**: qué instrucciones existen y cómo se codifican (el contrato). | 
 | `programas/ejemplos/*.asm` | **El software**: programas de prueba (no se modifican). |
 | `programas/ejemplos/*.esperado` | Estado final esperado de cada programa. |
-| `programas/etapa_1/` | Ejercicios por resolver: complete el código y el `.esperado` (los `?`) y verifique con `./sim -t`. `make test` no los ejecuta. |
+| `programas/etapa_N/` | Ejercicios por resolver de cada etapa (4 por etapa): complete el código y el `.esperado` (los `?`) y verifique con `./sim -t`. `make test` no los ejecuta. |
 | `programas/` | Sus programas propios: `make test` también los ejecuta si tienen `.esperado`. |
 | `src/ejecutar.c` | **La microarquitectura**: qué hace el hardware con cada instrucción. | 
 | `src/main.c` | Opciones y modos de ejecución. | 

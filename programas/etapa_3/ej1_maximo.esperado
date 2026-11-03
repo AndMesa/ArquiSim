@@ -1,0 +1,3 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+mem[0x208] = ?   # max
+mem[0x20C] = ?   # dif
