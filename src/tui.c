@@ -1182,21 +1182,30 @@ static void editar(Sesion *s, char *errores, size_t tam)
 static int elegir_programa(Sesion *s, const char *error_previo)
 {
     static char nombres[64][MAX_NOMBRE_ARCHIVO];
+    static const char *subcarpetas[] = { "ejemplos", "etapa_1", "etapa_2", "etapa_3",
+                                         "etapa_4", "etapa_5" };
     char linea[MAX_RUTA], ruta[MAX_RUTA], errores[MAX_ERRORES], cwd[512];
     const char *dir;
-    int n, i, columnas, hay_programa = s->p->ruta[0] != '\0';
+    int n, i, j, columnas, hay_programa = s->p->ruta[0] != '\0';
     long long v;
     char *cmd;
 
     snprintf(errores, sizeof errores, "%s", error_previo ? error_previo : "");
     for (;;) {
-        /* primero los ejemplos (programas/ejemplos/) y luego los propios (programas/) */
+        /* primero las subcarpetas (ejemplos, ejercicios por etapa) y luego los propios (programas/) */
         dir = "programas";
-        n = terminal_listar_asm("programas/ejemplos", nombres, 64);
-        for (i = 0; i < n; i++) {
-            char nombre[MAX_NOMBRE_ARCHIVO];
-            snprintf(nombre, sizeof nombre, "%s", nombres[i]);
-            snprintf(nombres[i], MAX_NOMBRE_ARCHIVO, "ejemplos/%s", nombre);
+        n = 0;
+        for (j = 0; j < (int)(sizeof subcarpetas / sizeof subcarpetas[0]); j++) {
+            char ruta_sub[MAX_RUTA];
+            int k, m;
+            snprintf(ruta_sub, sizeof ruta_sub, "%s/%s", dir, subcarpetas[j]);
+            m = terminal_listar_asm(ruta_sub, nombres + n, 64 - n);
+            for (k = n; k < n + m; k++) {
+                char nombre[MAX_NOMBRE_ARCHIVO];
+                snprintf(nombre, sizeof nombre, "%s", nombres[k]);
+                snprintf(nombres[k], MAX_NOMBRE_ARCHIVO, "%s/%s", subcarpetas[j], nombre);
+            }
+            n += m;
         }
         n += terminal_listar_asm(dir, nombres + n, 64 - n);
         if (n == 0) {

@@ -1,0 +1,11 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+$t1 = ?
+$t3 = ?
+$t4 = ?
+$s0 = ?
+$s3 = ?
+# banderas al final del programa (las deja g = b - a)
+z = ?
+n = ?
+c = ?
+v = ?
