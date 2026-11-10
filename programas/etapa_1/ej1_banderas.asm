@@ -6,10 +6,10 @@
 #
 #        Resultado      Z  N  C  V
 #   A    __________     _  _  _  _
-#   B    __________     _  _  _  _
-#   C    __________     _  _  _  _
-#   D    __________     _  _  _  _
-#   E    __________     _  _  _  _
+#   B    __________     _  X  _  X
+#   C    __________     _  _  X  X
+#   D    __________     X  _  _  _
+#   E    __________     X  _  X  _
 #
 # PARTE B: con a = 7 en $s1 y b = 4 en $s2 calcule, SIN multiplicar,
 #   f = 3a - 2b  en $s0
@@ -30,5 +30,12 @@
 # ---------------- Parte B ----------------
         addi  $s1, $zero, 7         # a
         addi  $s2, $zero, 4         # b
+	add   $s5,$s1,$s1
+        add   $s5,$s5,$s1
+        add   $s4,$s2,$s2
+        nor    $s4,$s4,$zero
+        addi   $s4,$s4,0x01
+        add   $s0,$s5,$s4
+	sub   $s3,$s2,$s1
 # escriba aquí su código
 

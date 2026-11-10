@@ -19,5 +19,18 @@
 A:      .word 5, -3, 12, 7
 SUMA:   .word 0
 .text
+addi $s0,$zero,A
+lw  $t0,0($s0)
+lw  $t1,4($s0)
+lw  $t2,8($s0)
+lw  $t3,12($s0)
+add $t4,$t0,$t1
+
+add $t4,$t4,$t2
+add $t4,$t4,$t3
+sw  $t4,SUMA($zero)
+sw  $t3,0($s0)
+sw  $t0,12($s0)
+
 # escriba aquí su código
 
