@@ -1,0 +1,6 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+$s0 = ?
+$s1 = ?
+$s7 = ?
+mem[0x5E0] = ?   # barra apagada
+mem[0x5E4] = ?

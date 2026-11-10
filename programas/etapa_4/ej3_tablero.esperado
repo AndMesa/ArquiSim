@@ -1,0 +1,7 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+rgb[0,0] = ?
+rgb[4,0] = ?
+rgb[4,4] = ?
+rgb[3,7] = ?
+rgb[31,31] = ?
+mem[0x604] = ?   # la posición dio la vuelta

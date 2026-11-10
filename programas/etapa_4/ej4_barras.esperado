@@ -1,0 +1,6 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+mem[0x5E0] = ?   # fila 15, x = 0..3: barra 0 (verde)
+mem[0x580] = ?   # fila 12, x = 0..3: la barra 0 mide 3
+mem[0x414] = ?   # fila 0, x = 20..23: barra 5 (16, roja)
+mem[0x428] = ?   # fila 1, x = 8..11: la barra 2 mide 14
+mem[0x448] = ?   # fila 2, x = 8..11
