@@ -1,0 +1,5 @@
+$v0 = 4                         # CONTAR devuelve 4 negativos: -3, -8, -1 y -20
+mem[0x220] = 4                  # RES: el resultado guardado en .data
+mem[0x400] = 0x01010101         # fila 0: píxeles (0,0) a (3,0) en rojo
+mem[0x404] = 0                  # el píxel (4,0) y los siguientes quedan en negro
+$ra = 0x00C                     # dirección de retorno: la instrucción después del jal
