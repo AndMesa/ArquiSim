@@ -97,3 +97,36 @@ la     I  001000  -       rt,imm,rs=$zero          addi   # la $t0, A       ->  
 b      I  000100  -       label,rs=$zero,rt=$zero  beq    # b LOOP          ->  beq  $zero, $zero, LOOP
 
 # ---------------- Agregue aquí las instrucciones de las etapas 4 y 5 ----------------
+
+# ---------------- Etapa 5: formas de 2 direcciones (misma codificación que la de 3) ----------------
+add    R  000000  100000  rd+rs,rt     # add $t1, $t2   ->  $t1 = $t1 + $t2
+sub    R  000000  100010  rd+rs,rt     # sub $t1, $t2   ->  $t1 = $t1 - $t2
+and    R  000000  100100  rd+rs,rt     # and $t1, $t2   ->  $t1 = $t1 AND $t2
+or     R  000000  100101  rd+rs,rt     # or  $t1, $t2   ->  $t1 = $t1 OR $t2
+addi   I  001000  -       rt+rs,imm    # addi $t1, 5    ->  $t1 = $t1 + 5
+
+# ---------------- Etapa 5: acumulador (1 dirección) ----------------
+mtacc  R  000000  010101  rs           # ACC = rs
+mfacc  R  000000  010100  rd           # rd = ACC
+add    R  000000  110000  rt           adda    # ACC = ACC + rt   (banderas)
+sub    R  000000  110010  rt           suba    # ACC = ACC - rt   (banderas)
+addi   I  011000  -       imm          addia   # ACC = ACC + imm  (banderas)
+
+# ---------------- Etapa 5: banderas ----------------
+cmp    R  000000  110100  rs,rt        # banderas según rs - rt (no guarda el resultado)
+jz     J  010100  -       label        # salta si Z = 1
+jn     J  010101  -       label        # salta si N = 1
+jc     J  010110  -       label        # salta si C = 1
+jv     J  010111  -       label        # salta si V = 1
+
+# ---------------- Etapa 5: multiplicación y división ----------------
+mult   R  000000  011000  rs,rt        # HI:LO = rs * rt  (con signo)
+multu  R  000000  011001  rs,rt        # HI:LO = rs * rt  (sin signo)
+div    R  000000  011010  rs,rt        # LO = rs / rt, HI = rs % rt  (con signo)
+divu   R  000000  011011  rs,rt        # LO = rs / rt, HI = rs % rt  (sin signo)
+mfhi   R  000000  010000  rd           # rd = HI
+mflo   R  000000  010010  rd           # rd = LO
+mul    R  011100  000010  rd,rs,rt     # rd = 32 bits bajos de rs * rt
+
+# ---------------- Etapa 5: servicios del sistema ----------------
+syscall R 000000  001100  -            # servicio del sistema (número en $v0)
