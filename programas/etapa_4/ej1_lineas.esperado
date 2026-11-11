@@ -1,0 +1,7 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+mem[0x500] = ?   # fila 8, x = 0..3
+mem[0x504] = ?   # fila 8, x = 4..7
+mem[0x510] = ?   # fila 8, x = 16..19 (cruce)
+mem[0x51C] = ?   # fila 8, x = 28..31
+mem[0x450] = ?   # fila 2, x = 16..19
+mem[0x5D0] = ?   # fila 14, x = 16..19

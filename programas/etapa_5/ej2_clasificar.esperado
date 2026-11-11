@@ -1,0 +1,4 @@
+# Reemplace cada ? por el valor que usted predice (decimal o 0x...)
+mem[0x220] = ?   # neg
+mem[0x224] = ?   # ceros
+mem[0x228] = ?   # pos
