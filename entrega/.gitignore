@@ -1,0 +1,8 @@
+# Ejecutables que se generan al compilar las herramientas (cada uno compila los suyos)
+herramientas/*.exe
+herramientas/harness
+herramientas/img_a_arquisim
+herramientas/filtros
+filtros
+filtros.exe
+__pycache__/
